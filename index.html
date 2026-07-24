@@ -45,7 +45,7 @@ canvas{width:100%;height:410px;background:#08131d;border:1px solid #1a3043;borde
 <div id="signalBox" class="signal wait"><div class="sub">CURRENT SIGNAL</div><div class="big" id="signal">WAIT</div><div><span id="conf">52</span>% confidence · 1m expiry</div><div class="bar"><i id="confBar"></i></div></div>
 <div class="row"><span>Trend</span><span class="pill" id="trend">Neutral</span></div>
 <div class="row"><span>EMA 50 / 200</span><span id="emaText">—</span></div>
-<div class="row"><span>RSI 7</span><span id="rsiText">—</span></div>
+<div class="row"><span>RSI 7</ span><span id="rsiText">—</span></div>
 <div class="row"><span>MACD</span><span id="macdText">—</span></div>
 <div class="row"><span>ADX / DI</span><span id="adxText">—</span></div>
 <div class="row"><span>FVG</span><span id="fvgText">None</span></div>
@@ -66,55 +66,45 @@ function fvg(c){const a=c.at(-3),z=c.at(-1);if(a.h<z.l)return'Bullish';if(a.l>z.
 function add(log=true){const prev=candles.length?candles.at(-1).c:base,shock=(Math.random()-.5)*.00018+Math.sin(candles.length/13)*.000015,o=prev,c=Math.max(.84,o+shock),h=Math.max(o,c)+Math.random()*.00008,l=Math.min(o,c)-Math.random()*.00008;candles.push({o,h,l,c});if(candles.length>180)candles.shift();price.textContent=c.toFixed(5);render();analyze(log)}
 function analyze(log=true){const v=candles.map(x=>x.c),e50=ema(v,50).at(-1),e200=ema(v,200).at(-1),R=rsi(v),M=macd(v),A=adxLike(candles),F=fvg(candles);let bull=0,bear=0,why=[];if(e50>e200){bull+=2;why.push('EMA 50 above EMA 200')}else{bear+=2;why.push('EMA 50 below EMA 200')}if(R>55&&R<78){bull++;why.push('RSI supports bullish momentum')}if(R<45&&R>22){bear++;why.push('RSI supports bearish momentum')}if(M>0){bull++;why.push('MACD bullish')}else{bear++;why.push('MACD bearish')}if(A.adx>22){if(A.plus>A.minus){bull++;why.push('ADX confirms +DI')}else{bear++;why.push('ADX confirms -DI')}}else why.push('Trend strength weak');if(F==='Bullish'){bull++;why.push('Bullish FVG detected')}if(F==='Bearish'){bear++;why.push('Bearish FVG detected')}let s='WAIT';if(bull>=4&&bull>=bear+2)s='CALL';if(bear>=4&&bear>=bull+2)s='PUT';let conf=Math.max(50,Math.min(88,50+Math.abs(bull-bear)*7+(A.adx>22?4:0)));if(s==='WAIT')conf=Math.min(conf,64);signalBox.className='signal '+s.toLowerCase();signal.textContent=s;document.getElementById('conf').textContent=conf;confBar.style.width=conf+'%';trend.textContent=e50>e200?'Bullish':'Bearish';emaText.textContent=e50.toFixed(5)+' / '+e200.toFixed(5);rsiText.textContent=R.toFixed(1);macdText.textContent=M>=0?'Bullish':'Bearish';adxText.textContent=A.adx.toFixed(1)+' / '+(A.plus>A.minus?'+DI':'-DI');fvgText.textContent=F;document.getElementById('why').innerHTML=why.slice(0,5).map(x=>'<li>'+x+'</li>').join('');if(log&&s!=='WAIT'){const tr=document.createElement('tr');tr.innerHTML='<td>'+new Date().toLocaleTimeString()+'</td><td>'+s+'</td><td>'+conf+'%</td><td>'+v.at(-1).toFixed(5)+'</td>';history.prepend(tr);if(history.children.length>20)history.lastChild.remove()}}
 function render(){const W=canvas.width,H=canvas.height,pad=32,d=candles.slice(-80),lo=Math.min(...d.map(x=>x.l)),hi=Math.max(...d.map(x=>x.h)),y=p=>pad+(hi-p)/(hi-lo||1)*(H-pad*2),cw=(W-20)/d.length;ctx.clearRect(0,0,W,H);ctx.strokeStyle='#173047';for(let i=0;i<6;i++){const yy=pad+i*(H-pad*2)/5;ctx.beginPath();ctx.moveTo(0,yy);ctx.lineTo(W,yy);ctx.stroke()}d.forEach((c,i)=>{const x=10+i*cw+cw/2,up=c.c>=c.o;ctx.strokeStyle=ctx.fillStyle=up?'#38d39f':'#ff5d73';ctx.beginPath();ctx.moveTo(x,y(c.h));ctx.lineTo(x,y(c.l));ctx.stroke();const top=Math.min(y(c.o),y(c.c)),bh=Math.max(2,Math.abs(y(c.o)-y(c.c)));ctx.fillRect(x-cw*.28,top,cw*.56,bh)});const v=d.map(x=>x.c);function line(vals,col){ctx.strokeStyle=col;ctx.beginPath();vals.forEach((z,i)=>{const x=10+i*cw+cw/2;i?ctx.lineTo(x,y(z)):ctx.moveTo(x,y(z))});ctx.stroke()}line(ema(v,Math.min(50,v.length)),'#39a0ff');line(ema(v,Math.min(79,v.length)),'#f6c85f')}
-function seed(){candles=[];for(let i=0;i<120;i++)add(false);analyze(false)}
-function schedule(){clearInterval(timer);remaining=parseInt(speed.value)/1000;timer=setInterval(()=>{if(!running)return;remaining--;if(remaining<=0){add(true);remaining=parseInt(speed.value)/1000}countdown.textContent=String(remaining).padStart(2,'0')+'s'},1000)}
-
-async function loadRealCandles(){
+function seed(){canes(){ 25
   const badge=document.getElementById('feedBadge');
-  try{
-    badge.textContent='CONNECTING REAL FEED';
-    const url='https://query1.finance.yahoo.com/v8/finance/chart/EURGBP=X?interval=1m&range=1d';
-    const res=await fetch(url,{cache:'no-store'});
-    if(!res.ok) throw new Error('Feed response '+res.status);
-    const json=await res.json();
-    const result=json?.chart?.result?.[0];
-    const q=result?.indicators?.quote?.[0];
-    const ts=result?.timestamp||[];
-    if(!q||!ts.length) throw new Error('No candle data');
-    const real=[];
-    for(let i=0;i<ts.length;i++){
-      const o=q.open?.[i],h=q.high?.[i],l=q.low?.[i],c=q.close?.[i];
-      if([o,h,l,c].every(Number.isFinite)) real.push({o,h,l,c,t:new Date(ts[i]*1000)});
-    }
-    if(real.length<50) throw new Error('Not enough candles');
-    candles=real.slice(-180);
-    price.textContent=candles.at(-1).c.toFixed(5);
-    badge.textContent='REAL MARKET FEED';
-    document.getElementById('countdown').textContent='60s';
-    render(); analyze(false);
-    return true;
-  }catch(err){
-    badge.textContent='REAL FEED OFFLINE';
-    document.getElementById('why').innerHTML='<li>Could not reach the public EUR/GBP feed.</li><li>Open this page with internet access and refresh.</li>';
-    return false;
-  }
-}
-async function refreshReal(){
-  if(!running)return;
-  const before=candles.length?candles.at(-1).t?.getTime():0;
-  const ok=await loadRealCandles();
-  if(ok){
-    const after=candles.at(-1).t?.getTime();
-    if(after&&after!==before) analyze(true);
-  }
-}
-startBtn.onclick=()=>{running=!running;startBtn.textContent=running?'Pause':'Resume'};
-newSignalBtn.onclick=()=>analyze(true);
-resetBtn.onclick=()=>loadRealCandles();
-speed.parentElement.removeChild(speed);
-loadRealCandles();
-setInterval(refreshReal,60000);
+    try{
+        badge.textContent='CONNECTING REAL FEED';
+            const url='https://query1.finance.yahoo.com/v8/finance/chart/EURGBP=X?interval=1m&range=1d';
+                const res=await fetch(url,{cache:'no-store'});
+                    if(!res.ok) throw new Error('Feed response '+res.status);
+                        const json=await res.json();
+                            const result=json?.chart?.result?.[0];
+                                const q=result?.indicators?.quote?.[0];
+                                    const ts=result?.timestamp||[];
+                                        if(!q||!ts.length) throw new Error('No candle data');
+                                            const real=[];
+                                                for(let i=0;i<ts.length;i++){
+                                                      const o=q.open?.[i],h=q.high?.[i],l=q.low?.[i],c=q.close?.[i];
+                                                            if([o,h,l,c].every(Number.isFinite)) real.push({o,h,l,c,t:new Date(ts[i]*1000)});
+                                                                }
+                                                                    if(real.length<50) throw new Error('Not enough candles');
+                                                                        candles=real.slice(-180);
+                                                                            price.textContent=candles.at(-1).c.toFixed(5);
+                                                                                badge.textContent='REAL MARKET FEED';
+                                                                                    document.getElementById('countdown').textContent='60s';
+                                                                                        render(); analyze(false);
+                                                                                            return true;
+                                                                                              }catch(err){
+                                                                                                  badge.textContent='REAL FEED OFFLINE';
+                                                                                                      document.getElementById('why').innerHTML='<li>Could not reach the public EUR/GBP feed.</li><li>Open this page with internet access and refresh.</li>';
+                                                                                                          return false;
+                                                                                                            }
+                                                                                                            }
+                                                                                                            async function refreshReal(){
+                                                                                                              if(!running)return;
+                                                                                                                const before=candles.length?candles.at(-1).t?.getTime():0;
+                                                                                                                  const ok=await loadRealCandles();
+                                                                                                                    if(ok){
+                                                                                                                        const after=candles.at(-1).t?.getTime(resetBtn.onclick=()=>loadRealCandles();
+                                                                                                                        speed.parentElement.removeChild(speed);
+                                                                                                                        loadRealCandles();
+                                                                                                                        setInterval(refreshReal,60000);
 
-</script>
-</body>
-</html>
+                                                                                                                        </script>
+                                                                                                                        </body>
