@@ -1,0 +1,1 @@
+Upload index.html, vercel.json and the api folder to the root of your GitHub repository. Vercel will redeploy automatically.

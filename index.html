@@ -1,120 +1,88 @@
 <!doctype html>
-<html lang="en">
+<html>
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Zeuz Live v1</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zeuz Live</title>
 <style>
-:root{--bg:#071019;--panel:#0d1824;--text:#eef6ff;--muted:#8ea3b8;--good:#38d39f;--bad:#ff5d73;--warn:#f6c85f;--accent:#39a0ff}
-*{box-sizing:border-box}body{margin:0;font-family:system-ui,Arial;background:linear-gradient(#071019,#091522);color:var(--text)}
-.wrap{max-width:1050px;margin:auto;padding:14px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.brand{display:flex;gap:10px;align-items:center}.logo{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:#10263a;border:1px solid #244663;font-weight:800}
-h1{font-size:18px;margin:0}.sub{font-size:12px;color:var(--muted)}.badge{padding:7px 10px;border-radius:999px;border:1px solid #3c4d5e;background:#122231;font-size:12px}
-.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}.metric{background:#0d1b29;border:1px solid #1c3145;border-radius:12px;padding:10px}.metric span{display:block;color:var(--muted);font-size:11px}.metric b{font-size:18px}
-.grid{display:grid;grid-template-columns:1.5fr .8fr;gap:12px}.card{background:#0d1824;border:1px solid #1d3145;border-radius:16px;padding:12px}
-canvas{width:100%;height:410px;background:#08131d;border:1px solid #1a3043;border-radius:12px;display:block}
-.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}button,select{background:#132638;color:var(--text);border:1px solid #28455f;border-radius:10px;padding:9px 12px}button.primary{background:#1677c8}
-.signal{text-align:center;padding:16px;border-radius:14px;background:#0b1722;border:1px solid #1e354a;margin-bottom:10px}.big{font-size:34px;font-weight:800}.call .big{color:var(--good)}.put .big{color:var(--bad)}.wait .big{color:var(--warn)}
-.bar{height:9px;background:#172737;border-radius:99px;overflow:hidden;margin-top:8px}.bar i{display:block;height:100%;background:var(--accent);width:0}
-.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #182b3e;font-size:13px}.pill{font-size:11px;padding:3px 7px;border-radius:999px;background:#15293c}
-.why{font-size:13px;line-height:1.4;color:#c7d6e4}table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:7px 5px;border-bottom:1px solid #182b3e;text-align:left}.foot{font-size:11px;color:var(--muted);margin-top:10px}
-@media(max-width:800px){.grid{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}canvas{height:320px}}
+:root{--bg:#07111c;--p:#0d1a27;--line:#20384e;--txt:#edf6ff;--mut:#91a7b9;--g:#35d39b;--r:#ff6277;--y:#f5c451}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(#07111c,#0a1928);color:var(--txt);font-family:system-ui}
+.app{max-width:1050px;margin:auto;padding:13px}.top{display:flex;justify-content:space-between;align-items:center}.brand{font-size:21px;font-weight:800}.sub{font-size:11px;color:var(--mut)}
+.status{font-size:11px;border:1px solid var(--line);padding:7px 10px;border-radius:20px;background:#112435}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:11px 0}.m,.card{background:var(--p);border:1px solid var(--line);border-radius:13px;padding:10px}
+.m small{display:block;color:var(--mut);font-size:10px}.m b{font-size:17px}
+.grid{display:grid;grid-template-columns:1.55fr .75fr;gap:10px}canvas{width:100%;height:390px;background:#07131e;border-radius:10px}
+.controls{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}select,button{background:#13283a;color:white;border:1px solid #2b4961;border-radius:9px;padding:10px}
+.signal{text-align:center;border:1px solid var(--line);border-radius:12px;padding:15px;background:#091622}.big{font-size:38px;font-weight:900}
+.call .big{color:var(--g)}.put .big{color:var(--r)}.wait .big{color:var(--y)}
+.row{display:flex;justify-content:space-between;border-bottom:1px solid #192d40;padding:9px 0;font-size:13px}.note{font-size:12px;color:var(--mut);line-height:1.45}.quality{margin-top:8px;padding:8px;border-radius:8px;background:#25200f;color:#f5d77d;font-size:12px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}canvas{height:330px}}
 </style>
 </head>
-<body>
-<div class="wrap">
-<div class="top"><div class="brand"><div class="logo">Z</div><div><h1>Zeuz Live v1</h1><div class="sub">EUR/GBP · 1-minute signal engine</div></div></div><div class="badge" id="feedBadge">CONNECTING REAL FEED</div></div>
+<body><div class="app">
+<div class="top"><div><div class="brand">⚡ Zeuz Live</div><div class="sub">Live forex · FVG Fill · Trend Pullback</div></div><div class="status" id="status">CONNECTING</div></div>
 <div class="metrics">
-<div class="metric"><span>PAIR</span><b>EUR/GBP</b></div>
-<div class="metric"><span>TIMEFRAME</span><b>1m</b></div>
-<div class="metric"><span>LAST PRICE</span><b id="price">0.85740</b></div>
-<div class="metric"><span>NEXT CANDLE</span><b id="countdown">05s</b></div>
+<div class="m"><small>PAIR</small><b id="pairName">EUR/USD</b></div>
+<div class="m"><small>TIMEFRAME</small><b>1m</b></div>
+<div class="m"><small>PRICE</small><b id="price">—</b></div>
+<div class="m"><small>REFRESH</small><b id="timer">15s</b></div>
 </div>
 <div class="grid">
-<section class="card">
-<canvas id="chart" width="900" height="420"></canvas>
+<div class="card">
+<canvas id="cv" width="900" height="390"></canvas>
 <div class="controls">
-<button id="startBtn" class="primary">Pause</button>
-<button id="newSignalBtn">Run signal now</button>
-<select id="speed"><option value="5000">Real feed</option><option value="3000">3 sec/candle</option><option value="1000">1 sec/candle</option></select>
-<button id="resetBtn">Reset</button>
+<select id="pair">
+<option>EURUSD</option><option>GBPUSD</option><option>EURGBP</option><option>AUDUSD</option>
+<option>USDJPY</option><option>GBPJPY</option><option>AUDJPY</option><option>NZDUSD</option>
+</select>
+<button id="refresh">Refresh</button><button id="pause">Pause</button>
 </div>
-<div class="foot">Real EUR/GBP 1-minute candles are requested through the Vercel website proxy. The app never invents a live price: if the source is unavailable, it clearly shows OFFLINE.</div>
-</section>
-<aside class="card">
-<div id="signalBox" class="signal wait"><div class="sub">CURRENT SIGNAL</div><div class="big" id="signal">WAIT</div><div><span id="conf">52</span>% confidence · 1m expiry</div><div class="bar"><i id="confBar"></i></div></div>
-<div class="row"><span>Trend</span><span class="pill" id="trend">Neutral</span></div>
-<div class="row"><span>EMA 50 / 200</span><span id="emaText">—</span></div>
-<div class="row"><span>RSI 7</span><span id="rsiText">—</span></div>
-<div class="row"><span>MACD</span><span id="macdText">—</span></div>
-<div class="row"><span>ADX / DI</span><span id="adxText">—</span></div>
-<div class="row"><span>FVG</span><span id="fvgText">None</span></div>
-<h3 style="font-size:14px">Why</h3><ul class="why" id="why"></ul>
-<h3 style="font-size:14px">Signal history</h3>
-<table><thead><tr><th>Time</th><th>Signal</th><th>Conf.</th><th>Price</th></tr></thead><tbody id="history"></tbody></table>
-</aside>
+<div class="quality" id="quality">Checking feed…</div>
 </div>
-</div>
+<div class="card">
+<div id="box" class="signal wait"><div class="sub">CURRENT SIGNAL</div><div class="big" id="sig">WAIT</div><div><span id="conf">0</span>% confidence</div></div>
+<div class="row"><span>Setup</span><b id="setup">—</b></div>
+<div class="row"><span>Trend</span><b id="trend">—</b></div>
+<div class="row"><span>RSI 7</span><b id="rsi">—</b></div>
+<div class="row"><span>FVG</span><b id="fvg">—</b></div>
+<div class="row"><span>Last candle</span><b id="lastTime">—</b></div>
+<p class="note" id="why">Waiting for valid data.</p>
+<p class="note">Testing tool only. Verify signals before risking money.</p>
+</div></div></div>
 <script>
-const canvas=document.getElementById('chart'),ctx=canvas.getContext('2d');
-let candles=[],running=true,timer,remaining=5,base=.8574;
-function ema(v,p){const k=2/(p+1);let e=v[0];return v.map(x=>e=x*k+e*(1-k))}
-function rsi(v,p=7){if(v.length<=p)return 50;let g=0,l=0;for(let i=v.length-p;i<v.length;i++){const d=v[i]-v[i-1];if(d>=0)g+=d;else l-=d}if(!l)return 100;const rs=(g/p)/(l/p);return 100-100/(1+rs)}
-function macd(v){const a=ema(v,12),b=ema(v,26),line=a.map((x,i)=>x-b[i]),sig=ema(line,9);return line.at(-1)-sig.at(-1)}
-function adxLike(c,p=14){let plus=0,minus=0,tr=0;for(let i=c.length-p;i<c.length;i++){const up=c[i].h-c[i-1].h,dn=c[i-1].l-c[i].l;plus+=(up>dn&&up>0)?up:0;minus+=(dn>up&&dn>0)?dn:0;tr+=Math.max(c[i].h-c[i].l,Math.abs(c[i].h-c[i-1].c),Math.abs(c[i].l-c[i-1].c))}const pdi=tr?100*plus/tr:0,mdi=tr?100*minus/tr:0,adx=Math.min(60,Math.abs(pdi-mdi)/(pdi+mdi+1e-9)*100);return{adx,plus:pdi,minus:mdi}}
-function fvg(c){const a=c.at(-3),z=c.at(-1);if(a.h<z.l)return'Bullish';if(a.l>z.h)return'Bearish';return'None'}
-function add(log=true){const prev=candles.length?candles.at(-1).c:base,shock=(Math.random()-.5)*.00018+Math.sin(candles.length/13)*.000015,o=prev,c=Math.max(.84,o+shock),h=Math.max(o,c)+Math.random()*.00008,l=Math.min(o,c)-Math.random()*.00008;candles.push({o,h,l,c});if(candles.length>180)candles.shift();price.textContent=c.toFixed(5);render();analyze(log)}
-function analyze(log=true){const v=candles.map(x=>x.c),e50=ema(v,50).at(-1),e200=ema(v,200).at(-1),R=rsi(v),M=macd(v),A=adxLike(candles),F=fvg(candles);let bull=0,bear=0,why=[];if(e50>e200){bull+=2;why.push('EMA 50 above EMA 200')}else{bear+=2;why.push('EMA 50 below EMA 200')}if(R>55&&R<78){bull++;why.push('RSI supports bullish momentum')}if(R<45&&R>22){bear++;why.push('RSI supports bearish momentum')}if(M>0){bull++;why.push('MACD bullish')}else{bear++;why.push('MACD bearish')}if(A.adx>22){if(A.plus>A.minus){bull++;why.push('ADX confirms +DI')}else{bear++;why.push('ADX confirms -DI')}}else why.push('Trend strength weak');if(F==='Bullish'){bull++;why.push('Bullish FVG detected')}if(F==='Bearish'){bear++;why.push('Bearish FVG detected')}let s='WAIT';if(bull>=4&&bull>=bear+2)s='CALL';if(bear>=4&&bear>=bull+2)s='PUT';let conf=Math.max(50,Math.min(88,50+Math.abs(bull-bear)*7+(A.adx>22?4:0)));if(s==='WAIT')conf=Math.min(conf,64);signalBox.className='signal '+s.toLowerCase();signal.textContent=s;document.getElementById('conf').textContent=conf;confBar.style.width=conf+'%';trend.textContent=e50>e200?'Bullish':'Bearish';emaText.textContent=e50.toFixed(5)+' / '+e200.toFixed(5);rsiText.textContent=R.toFixed(1);macdText.textContent=M>=0?'Bullish':'Bearish';adxText.textContent=A.adx.toFixed(1)+' / '+(A.plus>A.minus?'+DI':'-DI');fvgText.textContent=F;document.getElementById('why').innerHTML=why.slice(0,5).map(x=>'<li>'+x+'</li>').join('');if(log&&s!=='WAIT'){const tr=document.createElement('tr');tr.innerHTML='<td>'+new Date().toLocaleTimeString()+'</td><td>'+s+'</td><td>'+conf+'%</td><td>'+v.at(-1).toFixed(5)+'</td>';history.prepend(tr);if(history.children.length>20)history.lastChild.remove()}}
-function render(){const W=canvas.width,H=canvas.height,pad=32,d=candles.slice(-80),lo=Math.min(...d.map(x=>x.l)),hi=Math.max(...d.map(x=>x.h)),y=p=>pad+(hi-p)/(hi-lo||1)*(H-pad*2),cw=(W-20)/d.length;ctx.clearRect(0,0,W,H);ctx.strokeStyle='#173047';for(let i=0;i<6;i++){const yy=pad+i*(H-pad*2)/5;ctx.beginPath();ctx.moveTo(0,yy);ctx.lineTo(W,yy);ctx.stroke()}d.forEach((c,i)=>{const x=10+i*cw+cw/2,up=c.c>=c.o;ctx.strokeStyle=ctx.fillStyle=up?'#38d39f':'#ff5d73';ctx.beginPath();ctx.moveTo(x,y(c.h));ctx.lineTo(x,y(c.l));ctx.stroke();const top=Math.min(y(c.o),y(c.c)),bh=Math.max(2,Math.abs(y(c.o)-y(c.c)));ctx.fillRect(x-cw*.28,top,cw*.56,bh)});const v=d.map(x=>x.c);function line(vals,col){ctx.strokeStyle=col;ctx.beginPath();vals.forEach((z,i)=>{const x=10+i*cw+cw/2;i?ctx.lineTo(x,y(z)):ctx.moveTo(x,y(z))});ctx.stroke()}line(ema(v,Math.min(50,v.length)),'#39a0ff');line(ema(v,Math.min(79,v.length)),'#f6c85f')}
-function seed(){candles=[];for(let i=0;i<120;i++)add(false);analyze(false)}
-function schedule(){clearInterval(timer);remaining=parseInt(speed.value)/1000;timer=setInterval(()=>{if(!running)return;remaining--;if(remaining<=0){add(true);remaining=parseInt(speed.value)/1000}countdown.textContent=String(remaining).padStart(2,'0')+'s'},1000)}
-
-async function loadRealCandles(){
-  const badge=document.getElementById('feedBadge');
-  try{
-    badge.textContent='CONNECTING REAL FEED';
-    const url='/market-data';
-    const res=await fetch(url,{cache:'no-store'});
-    if(!res.ok) throw new Error('Feed response '+res.status);
-    const json=await res.json();
-    const result=json?.chart?.result?.[0];
-    const q=result?.indicators?.quote?.[0];
-    const ts=result?.timestamp||[];
-    if(!q||!ts.length) throw new Error('No candle data');
-    const real=[];
-    for(let i=0;i<ts.length;i++){
-      const o=q.open?.[i],h=q.high?.[i],l=q.low?.[i],c=q.close?.[i];
-      if([o,h,l,c].every(Number.isFinite)) real.push({o,h,l,c,t:new Date(ts[i]*1000)});
-    }
-    if(real.length<50) throw new Error('Not enough candles');
-    candles=real.slice(-180);
-    price.textContent=candles.at(-1).c.toFixed(5);
-    badge.textContent='REAL MARKET FEED';
-    document.getElementById('countdown').textContent='60s';
-    render(); analyze(false);
-    return true;
-  }catch(err){
-    badge.textContent='REAL FEED OFFLINE';
-    document.getElementById('why').innerHTML='<li>The live EUR/GBP source did not respond through the website proxy.</li><li>Wait 30 seconds and tap Reset. Live forex feeds can pause outside market hours.</li>';
-    return false;
-  }
+const $=id=>document.getElementById(id), cv=$("cv"), ctx=cv.getContext("2d");
+let candles=[], running=true, seconds=15, pair="EURUSD";
+const names={EURUSD:"EUR/USD",GBPUSD:"GBP/USD",EURGBP:"EUR/GBP",AUDUSD:"AUD/USD",USDJPY:"USD/JPY",GBPJPY:"GBP/JPY",AUDJPY:"AUD/JPY",NZDUSD:"NZD/USD"};
+function ema(a,p){let k=2/(p+1),e=a[0];return a.map(v=>e=v*k+e*(1-k))}
+function rsi(a,p=7){if(a.length<=p)return 50;let g=0,l=0;for(let i=a.length-p;i<a.length;i++){let d=a[i]-a[i-1];d>=0?g+=d:l-=d}return l===0?100:100-100/(1+(g/p)/(l/p))}
+function detectFVG(a){if(a.length<3)return"None";let A=a.at(-3),C=a.at(-1);if(C.l>A.h)return"Bullish";if(C.h<A.l)return"Bearish";return"None"}
+function quality(a){if(a.length<60)return[false,"Not enough candles"];let age=(Date.now()-a.at(-1).t)/60000;if(age>8)return[false,`Stale feed: ${Math.round(age)} min old`];let rr=a.slice(-40).map(x=>x.h-x.l).sort((x,y)=>x-y),m=rr[Math.floor(rr.length/2)]||0,bad=a.slice(-40).filter(x=>x.h-x.l>m*8).length;if(bad>=3)return[false,"Abnormal candle spikes detected"];return[true,"Feed quality passed"]}
+function draw(){
+ctx.clearRect(0,0,cv.width,cv.height);if(candles.length<10)return;
+let a=candles.slice(-90),vals=a.flatMap(x=>[x.h,x.l]),mn=Math.min(...vals),mx=Math.max(...vals),pad=(mx-mn)*.08||1;
+let y=v=>cv.height-20-(v-(mn-pad))/(mx-mn+2*pad)*(cv.height-40),cw=cv.width/a.length;
+ctx.strokeStyle="#173047";for(let i=1;i<6;i++){let yy=i*cv.height/6;ctx.beginPath();ctx.moveTo(0,yy);ctx.lineTo(cv.width,yy);ctx.stroke()}
+a.forEach((c,i)=>{let x=i*cw+cw/2,col=c.c>=c.o?"#35d39b":"#ff6277";ctx.strokeStyle=col;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,y(c.h));ctx.lineTo(x,y(c.l));ctx.stroke();ctx.lineWidth=Math.max(2,cw*.58);ctx.beginPath();ctx.moveTo(x,y(c.o));ctx.lineTo(x,y(c.c));ctx.stroke()})
+let cl=a.map(x=>x.c);[[ema(cl,50),"#43a5ff"],[ema(cl,200),"#d8a944"]].forEach(([e,col])=>{ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();e.forEach((v,i)=>i?ctx.lineTo(i*cw+cw/2,y(v)):ctx.moveTo(cw/2,y(v)));ctx.stroke()})
 }
-async function refreshReal(){
-  if(!running)return;
-  const before=candles.length?candles.at(-1).t?.getTime():0;
-  const ok=await loadRealCandles();
-  if(ok){
-    const after=candles.at(-1).t?.getTime();
-    if(after&&after!==before) analyze(true);
-  }
+function analyse(){
+let cl=candles.map(x=>x.c),e20=ema(cl,20).at(-1),e50=ema(cl,50).at(-1),e200=ema(cl,200).at(-1),rv=rsi(cl),fv=detectFVG(candles),q=quality(candles);
+let bull=0,bear=0,reasons=[],setup="WAIT";
+if(e50>e200){bull+=2;reasons.push("Main trend bullish")}else{bear+=2;reasons.push("Main trend bearish")}
+let last=cl.at(-1);
+if(e50>e200 && last<=e20*1.0004 && last>=e50*.999){bull+=2;setup="TREND_PULLBACK";reasons.push("Bullish pullback zone")}
+if(e50<e200 && last>=e20*.9996 && last<=e50*1.001){bear+=2;setup="TREND_PULLBACK";reasons.push("Bearish pullback zone")}
+if(fv==="Bullish"){bull+=2;setup="FVG_FILL";reasons.push("Bullish FVG detected")}
+if(fv==="Bearish"){bear+=2;setup="FVG_FILL";reasons.push("Bearish FVG detected")}
+if(rv>52&&rv<72){bull++;reasons.push("RSI bullish")}else if(rv<48&&rv>28){bear++;reasons.push("RSI bearish")}
+let s="WAIT",cf=0;if(q[0]&&Math.abs(bull-bear)>=3){s=bull>bear?"CALL":"PUT";cf=Math.min(82,58+Math.abs(bull-bear)*5)}
+if(!q[0])reasons.unshift(q[1]);
+$("box").className="signal "+s.toLowerCase();$("sig").textContent=s;$("conf").textContent=cf;$("setup").textContent=s==="WAIT"?"WAIT":setup;
+$("trend").textContent=e50>e200?"Bullish":"Bearish";$("rsi").textContent=rv.toFixed(1);$("fvg").textContent=fv;$("quality").textContent=q[1];$("why").textContent=reasons.join(" · ");
 }
-startBtn.onclick=()=>{running=!running;startBtn.textContent=running?'Pause':'Resume'};
-newSignalBtn.onclick=()=>analyze(true);
-resetBtn.onclick=()=>loadRealCandles();
-speed.parentElement.removeChild(speed);
-loadRealCandles();
-setInterval(refreshReal,60000);
-
-</script>
-</body>
-</html>
+async function load(){
+try{$("status").textContent="CONNECTING";let r=await fetch(`/api/market?pair=${pair}&x=${Date.now()}`,{cache:"no-store"}),j=await r.json();if(!r.ok)throw Error(j.error||"Feed failed");
+candles=j.candles;$("status").textContent="REAL MARKET FEED";$("pairName").textContent=names[pair];let c=candles.at(-1);$("price").textContent=c.c.toFixed(pair.includes("JPY")?3:5);$("lastTime").textContent=new Date(c.t).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});seconds=15;draw();analyse()
+}catch(e){$("status").textContent="FEED OFFLINE";$("quality").textContent=e.message;$("sig").textContent="WAIT";$("conf").textContent="0"}}
+$("pair").onchange=e=>{pair=e.target.value;load()};$("refresh").onclick=load;$("pause").onclick=()=>{running=!running;$("pause").textContent=running?"Pause":"Resume"};
+setInterval(()=>{if(!running)return;seconds--;if(seconds<=0)load();$("timer").textContent=Math.max(seconds,0)+"s"},1000);load();
+</script></body></html>
